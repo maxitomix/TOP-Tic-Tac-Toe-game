@@ -2,6 +2,16 @@
     box-sizing: border-box;
 }
 
-.container{
+.board{
+    height: 300px;
+    width: 300px;
     background-color: aqua;
+    display: grid;
+    grid-template-columns:1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr; 
+    }
+
+.cell{
+    height: 100px;
+    width: 100px;
 }
