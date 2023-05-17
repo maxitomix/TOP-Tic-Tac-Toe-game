@@ -133,6 +133,7 @@ function GameController(
 
 
     const resetBoard = () => {
+      activePlayer = players[0];
       const gameBoard = board.getBoard();
       gameBoard.forEach((row) => {
         row.forEach((cell) => {
@@ -166,7 +167,7 @@ function ScreenController(){
 
     board.forEach((row, rowIndex) => {
       row.forEach((cell, columnIndex) => {
-        const button = document.createElement('button');
+        const button = document.createElement('div');
         button.classList.add('cell');
         button.dataset.row = rowIndex;
         button.dataset.column = columnIndex;
