@@ -16,11 +16,12 @@ function Gameboard() {
 }
 
 function Cell() {
-    let value = 0;
+    let value = '---';
 
     const addToken = (player) => {
       value = player;
     };
+  
     const getValue = () => value;
   
     return {
@@ -30,8 +31,8 @@ function Cell() {
 
 function GameController(
   playerOneName = "Player One",
-  playerTwoName = "Player Two"
-  ){
+  playerTwoName = "Player Two",
+    ){
     const board = Gameboard();
 
     const players = [
@@ -45,16 +46,104 @@ function GameController(
       }
     ];
 
-    let activePlayer = players[0];
 
+    let activePlayer = players[0];
     const switchPlayerTurn = () => {
       activePlayer = activePlayer === players[0] ? players[1] : players [0];
     };
 
     const getActivePlayer = () => activePlayer;
 
+
+
+    const playRound = () => {
+      switchPlayerTurn();
+      const gameBoard = board.getBoard();
+      let hasEmptyCell = false;
+  
+      gameBoard.forEach((row) => {
+        row.forEach((cell) => {
+          if (cell.getValue() === '---') {
+            hasEmptyCell = true;
+          }
+        });
+      });
+
+      const checkWinCondition = (gameBoard) => {
+        // Check rows
+        for (let i = 0; i < 3; i++) {
+          if (
+            gameBoard[i][0].getValue() !== '---' &&
+            gameBoard[i][0].getValue() === gameBoard[i][1].getValue() &&
+            gameBoard[i][1].getValue() === gameBoard[i][2].getValue()
+          ) {
+            return gameBoard[i][0].getValue();
+          }
+        }
+      
+        // Check columns
+        for (let i = 0; i < 3; i++) {
+          if (
+            gameBoard[0][i].getValue() !== '---' &&
+            gameBoard[0][i].getValue() === gameBoard[1][i].getValue() &&
+            gameBoard[1][i].getValue() === gameBoard[2][i].getValue()
+          ) {
+            return gameBoard[0][i].getValue();
+          }
+        }
+      
+        // Check diagonals
+        if (
+          gameBoard[0][0].getValue() !== '---' &&
+          gameBoard[0][0].getValue() === gameBoard[1][1].getValue() &&
+          gameBoard[1][1].getValue() === gameBoard[2][2].getValue()
+        ) {
+          return gameBoard[0][0].getValue();
+        }
+      
+        if (
+          gameBoard[0][2].getValue() !== '---' &&
+          gameBoard[0][2].getValue() === gameBoard[1][1].getValue() &&
+          gameBoard[1][1].getValue() === gameBoard[2][0].getValue()
+        ) {
+          return gameBoard[0][2].getValue();
+        }
+      
+        return null;
+      };
+
+
+      if (!hasEmptyCell) {
+        console.log('All cells are filled. Game Over! DRAW!');
+        alert('All cells are filled. Game Over! DRAW!');
+        resetBoard();
+        return;
+      }
+
+      const winToken = checkWinCondition(gameBoard);
+      if (winToken) {
+        console.log(`Player ${winToken} wins! Game Over!`);
+        alert(`Player ${winToken} wins! Game Over!`);
+        resetBoard();
+        return;
+      }
+
+      
+    };
+
+
+    const resetBoard = () => {
+      const gameBoard = board.getBoard();
+      gameBoard.forEach((row) => {
+        row.forEach((cell) => {
+          cell.addToken('---');
+        });
+      });
+    };
+
+
     return {
-      getActivePlayer, switchPlayerTurn, getBoard: board.getBoard
+      getActivePlayer, getBoard: board.getBoard, switchPlayerTurn, playRound,
   };
 
 }
@@ -68,7 +157,12 @@ function ScreenController(){
     boardContainer.textContent = "";
     const board = game.getBoard();
     const activePlayer = game.getActivePlayer();
-    playerTurnDiv.textContent = `${activePlayer.name}'s turn...`
+    playerTurnDiv.textContent = `${activePlayer.name}'s turn...`;
+    console.log('Current Game Board:');
+    board.forEach((row) => {
+      const rowValues = row.map((cell) => cell.getValue());
+      console.log(rowValues);
+    });
 
     board.forEach((row, rowIndex) => {
       row.forEach((cell, columnIndex) => {
@@ -78,6 +172,15 @@ function ScreenController(){
         button.dataset.column = columnIndex;
         button.textContent = cell.getValue();
         boardContainer.appendChild(button);
+        button.addEventListener('click', () => {
+          console.log(`Button clicked at row ${rowIndex} and column ${columnIndex}`);
+          if (cell.getValue() === '---') {
+            cell.addToken(activePlayer.token);
+            game.playRound();
+            updateScreen();
+            
+          }
+        })
       })  
     })
   }
@@ -86,5 +189,6 @@ function ScreenController(){
 
 
 ScreenController();
+
 
 
